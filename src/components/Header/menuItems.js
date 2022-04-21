@@ -17,8 +17,8 @@ export const menuItems = [
         name: "contact",
         label: "Contact Us",
         isExternal: false,
-      }
-    ]
+      },
+    ],
   },
   {
     name: "e-learning",
@@ -42,7 +42,12 @@ export const menuItems = [
     label: "Continuing Education",
     isExternal: false,
   },
-  
+  {
+    name: "blogsPage/12",
+    label: "Blogs Section",
+    isExternal: false,
+  },
+
   // {
   //   name: "#",
   //   label: "For Students",
