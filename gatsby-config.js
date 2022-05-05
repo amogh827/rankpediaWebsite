@@ -1,3 +1,14 @@
+require("dotenv").config({
+  path: `.env.${process.env.NODE_ENV}`,
+});
+
+const strapiConfig = {
+  apiURL: process.env.STRAPI_API_URL,
+  accessToken: process.env.STRAPI_TOKEN,
+  collectionTypes: ["blog", "section"],
+  singleTypes: [],
+};
+
 module.exports = {
   siteMetadata: {
     title: `Finity Gatsby`,
@@ -17,11 +28,7 @@ module.exports = {
     `gatsby-transformer-remark`,
     {
       resolve: `gatsby-source-strapi`,
-      options: {
-        apiURL: "https://floating-anchorage-25703.herokuapp.com/",
-        queryLimit: 1000,
-        contentTypes: ["blog", "section"],
-      },
+      options: strapiConfig,
     },
   ],
 };

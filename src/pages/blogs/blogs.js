@@ -1,96 +1,112 @@
 import React, { useEffect, useState } from "react";
 import PageWrapper from "../../components/PageWrapper";
-import ReactMarkdown from "react-markdown";
-import axios from "axios";
 import { Link } from "gatsby";
-import qs from "qs";
 import Banner from "../../components/BannerSection";
+import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 
 function Blog({ id }) {
-  const [currentSection, setCurrentSection] = useState();
-  const [child, setChild] = useState();
+  const [currentSection, setCurrentSection] = useState("");
+  const [childSections, setChildSections] = useState();
   const [blogs, setBlogs] = useState();
   const [popularBlogs, setPopularBlogs] = useState();
 
-  function popBlogs() {
-    const query = qs.stringify(
-      {
-        fields: ["title"],
-      },
-      {
-        encodeValuesOnly: true,
-      }
-    );
-    axios
-      .get(`https://floating-anchorage-25703.herokuapp.com/api/blogs?${query}`)
-      .then((response) => {
-        const data = response.data.data;
-        data.splice(3);
-        setPopularBlogs(data);
-      });
-  }
+  const client = new ApolloClient({
+    uri: "https://floating-anchorage-25703.herokuapp.com/graphql",
+    cache: new InMemoryCache(),
+  });
+  const getSections = async (id) => {
+    const { data: sectionState } = await client.query({
+      query: gql`
+        query getSection {
+          section(id: "${id}") {
+            data {
+              id
+              attributes {
+                sectionName
+                childSections{
+                 data{
+                   id
+                  attributes{
+                    sectionName
+                  }
+                }
+              }
+              }
+            }
+          }
+        }
+      `,
+    });
+    return sectionState;
+  };
+  const getBlogs = async (id) => {
+    const { data: blogsState } = await client.query({
+      query: gql`
+        query getBlogs {
+          blogs(filters: { parentSections: { id: { eq: "${id}" } } }) {
+            data {
+              id
+              attributes {
+                title
+              }
+            }
+          }
+        }
+      `,
+    });
+    return blogsState;
+  };
 
-  function findBlogs(id) {
-    const query = qs.stringify(
-      {
-        fields: ["title"],
-        filters: {
-          parentSections: {
-            id: {
-              $eq: id,
-            },
-          },
-        },
-      },
-      {
-        encodeValuesOnly: true,
-      }
-    );
-    axios
-      .get(`https://floating-anchorage-25703.herokuapp.com/api/blogs?${query}`)
-      .then((response) => {
-        const data = response.data.data;
-        data.splice(3);
-        setBlogs(data);
-      });
-  }
+  const getPopBlogs = async () => {
+    const { data: popBlogsState } = await client.query({
+      query: gql`
+        query getBlogs {
+          blogs(pagination: { start: 0, limit: 3 }) {
+            data {
+              id
+              attributes {
+                title
+              }
+            }
+          }
+        }
+      `,
+    });
+    return popBlogsState;
+  };
+
   useEffect(() => {
-    const query = qs.stringify(
-      {
-        filters: {
-          id: {
-            $eq: id,
-          },
-        },
-        fields: ["sectionName"],
-        populate: {
-          childSections: {
-            fields: ["sectionName"],
-          },
-        },
-      },
-      {
-        encodeValuesOnly: true,
-      }
-    );
-    axios
-      .get(
-        `https://floating-anchorage-25703.herokuapp.com/api/sections/${id}?${query}`
-      )
-      .then((response) => {
-        console.log(response.data.data);
-        const {
-          attributes: { sectionName, childSections },
-        } = response.data.data;
-        setCurrentSection(sectionName);
-        const ch = childSections.data.map((c) => {
-          return { id: c.id, sectionName: c.attributes.sectionName };
-        });
-        ch.splice(3);
-        setChild(ch);
-        findBlogs(id);
-        popBlogs();
+    getSections(id).then((data) => {
+      const tempChildSections = data.section.data.attributes.childSections.data.map(
+        (sect) => {
+          return { id: sect.id, sectionName: sect.attributes.sectionName };
+        }
+      );
+      setCurrentSection(data.section.data.attributes.sectionName);
+      setChildSections(tempChildSections);
+      console.log(data);
+      console.log(tempChildSections);
+    });
+    getBlogs(id).then((data) => {
+      const tempBlogs = data.blogs.data.map((blog) => {
+        return {
+          id: blog.id,
+          title: blog.attributes.title,
+          body: blog.attributes.body,
+        };
       });
+      console.log(tempBlogs);
+      console.log(data);
+      setBlogs(tempBlogs);
+    });
+    getPopBlogs().then((data) => {
+      const temp = data.blogs.data.map(({ id, attributes: { title } }) => {
+        return { id, title };
+      });
+      console.log(data);
+      console.log(temp);
+      setPopularBlogs(temp);
+    });
   }, [id]);
   return (
     <>
@@ -124,7 +140,7 @@ function Blog({ id }) {
           )}
           {!(popularBlogs?.length === 0) && (
             <div className="row">
-              {popularBlogs?.map(({ id, attributes }) => {
+              {popularBlogs?.map(({ id, title }) => {
                 return (
                   <div key={id} className="col-sm-6 col-lg-4">
                     <img
@@ -132,19 +148,19 @@ function Blog({ id }) {
                       className="preview-image"
                     />
                     <Link to={`/currentBlog/${id}`} className="title-blog">
-                      {attributes.title}
+                      {title}
                     </Link>
                   </div>
                 );
               })}
             </div>
           )}{" "}
-          {child?.length !== 0 && (
+          {childSections?.length !== 0 && (
             <div>
               <hr />
               <h2>Subsections</h2>
               <div className="row">
-                {child?.map(({ id, sectionName }) => {
+                {childSections?.map(({ id, sectionName }) => {
                   return (
                     <div key={id} className="col-sm-6 col-lg-4">
                       <img
@@ -170,7 +186,7 @@ function Blog({ id }) {
           )}
           {!(blogs?.length === 0) && (
             <div className="row">
-              {blogs?.map(({ id, attributes }) => {
+              {blogs?.map(({ id, title }) => {
                 return (
                   <div key={id} className="col-sm-6 col-lg-4 mt-3">
                     <img
@@ -178,7 +194,7 @@ function Blog({ id }) {
                       className="preview-image"
                     />
                     <Link to={`/currentBlog/${id}`} className="title-blog mt-3">
-                      {attributes.title}
+                      {title}
                     </Link>
                   </div>
                 );

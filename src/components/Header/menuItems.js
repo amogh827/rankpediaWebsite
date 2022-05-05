@@ -47,7 +47,6 @@ export const menuItems = [
     label: "Blogs Section",
     isExternal: false,
   },
-
   // {
   //   name: "#",
   //   label: "For Students",
@@ -90,6 +89,11 @@ export const menuItems = [
       { name: "quizlisting9", label: "Class 9", isExternal: false },
       { name: "quizlisting10", label: "Class 10", isExternal: false },
     ],
+  },
+  {
+    name: "https://school.rankpedia.com/",
+    label: "Login",
+    isExternal: true,
   },
   //  {
   //   name: "contact",

@@ -2,19 +2,15 @@ import React, { useState } from "react";
 import { Link } from "gatsby";
 
 import { menuItems } from "./menuItems";
-//import Modal from 'react-modal' 
+//import Modal from 'react-modal'
 import QuizWizzPopUp from "./QuizWizzPopUp";
 //import 'reactjs-popup/dist/index.css';
-import '../../css/styles.css'
+import "../../css/styles.css";
 
-
-
-import { Modal, Button } from 'antd';
-import 'antd/dist/antd.css';
-
+import { Modal, Button } from "antd";
+import "antd/dist/antd.css";
 
 const Menu = () => {
-
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const showModal = () => {
@@ -37,7 +33,7 @@ const Menu = () => {
             const hasSubItems = Array.isArray(items);
             return (
               <React.Fragment key={name + index}>
-                {hasSubItems ? ( 
+                {hasSubItems ? (
                   <li className="nav-item dropdown" {...rest}>
                     <Link
                       className="nav-link dropdown-toggle gr-toggle-arrow"
@@ -130,18 +126,21 @@ const Menu = () => {
                       //   {label}
                       // </a>
                       <div>
-                          <img
-                            src={"https://res.cloudinary.com/ddo1ag5nz/image/upload/v1621923645/crown_retnxs.png"} alt=""
-                            className="quizwizz-link-img"
-                          />
+                        <img
+                          src={
+                            "https://res.cloudinary.com/ddo1ag5nz/image/upload/v1621923645/crown_retnxs.png"
+                          }
+                          alt=""
+                          className="quizwizz-link-img"
+                        />
                         <a
-                          className='nav-link'
-                          href="#popup-quizwizz"
+                          className="nav-link"
+                          href={name}
                           id="navLink-quizwizz"
                           // data-toggle="modal"
                           // data-target="#modalRegister"
                           onClick={showModal}
-                        > 
+                        >
                           {label}
                         </a>
 
@@ -159,7 +158,7 @@ const Menu = () => {
                             </div>
                           
                         </div> */}
-                        
+
                         {/* <Modal
                           isOpen={togglePopUp}
                           shouldCloseOnOverlayClick={true}
@@ -178,26 +177,33 @@ const Menu = () => {
                               margin: "auto",
                             }
                           }}
-                        > */}                       
-                          {/* </Modal> */}
+                        > */}
+                        {/* </Modal> */}
 
-                          {/* <Popup trigger={<button> Trigger</button>} position="center">
+                        {/* <Popup trigger={<button> Trigger</button>} position="center">
                             <div>Popup content here !!</div>
                           </Popup> */}
 
-                          <>
-                            {/* <Button type="primary" onClick={showModal}>
+                        <>
+                          {/* <Button type="primary" onClick={showModal}>
                               Open Modal
                             </Button> */}
-                            <Modal visible={isModalVisible} onOk={handleOk} onCancel={handleCancel} footer={null}>
-                              <img src={"https://res.cloudinary.com/ddo1ag5nz/image/upload/v1621923817/crown1_bsnzg3.png"} className="quizwizz-img" />
-                              <QuizWizzPopUp handleCancel={handleCancel} />
-                            </Modal>
-                          </>
-
-                        </div> 
-                          
-                      
+                          <Modal
+                            visible={isModalVisible}
+                            onOk={handleOk}
+                            onCancel={handleCancel}
+                            footer={null}
+                          >
+                            <img
+                              src={
+                                "https://res.cloudinary.com/ddo1ag5nz/image/upload/v1621923817/crown1_bsnzg3.png"
+                              }
+                              className="quizwizz-img"
+                            />
+                            <QuizWizzPopUp handleCancel={handleCancel} />
+                          </Modal>
+                        </>
+                      </div>
                     ) : (
                       <Link
                         className="nav-link"
